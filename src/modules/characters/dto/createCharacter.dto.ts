@@ -1,11 +1,6 @@
 import { createZodDto } from "nestjs-zod";
+import { JobType } from "src/common/types/jobs";
 import { z } from "zod";
-
-export enum JobType {
-  Warrior = "Warrior",
-  Thief = "Thief",
-  Mage = "Mage",
-}
 
 const CharacterSchema = z.object({
   id: z.number().optional(),

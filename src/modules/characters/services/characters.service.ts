@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { CreateCharacterDto, JobType } from "../dto/createCharacter.dto";
+import { CreateCharacterDto } from "../dto/createCharacter.dto";
+import { JobType } from "src/common/types/jobs";
 
 @Injectable()
 export class CharactersService {
