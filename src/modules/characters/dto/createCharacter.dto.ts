@@ -4,9 +4,6 @@ import { z } from "zod";
 
 const CreateCharacterSchema = z
   .object({
-    id: z.number().optional(),
-    level: z.number().positive().default(1),
-    alive: z.boolean().default(true),
     name: z
       .string()
       .min(4)
@@ -30,16 +27,42 @@ const CreateCharacterSchema = z
       .describe(
         "Character job type, available options are: Warrior, Thief, Mage"
       ),
-    hp: z.number().positive().optional(),
-    currentHp: z.number().optional(),
-    strength: z.number().positive().optional(),
-    dexterity: z.number().positive().optional(),
-    intelligence: z.number().positive().optional(),
   })
-  .transform((data) => ({
-    ...data,
-    currentHp: data.hp,
-  }));
+  .strict();
+
+const CharacterSchema = z.object({
+  id: z.number().optional(),
+  level: z.number().positive().default(1),
+  alive: z.boolean().default(true),
+  name: z
+    .string()
+    .min(4)
+    .max(15)
+    .regex(
+      /^[a-zA-Z_]+$/,
+      "Character name can only contain letters and underscores"
+    )
+    .describe("Character name, must be between 4 and 15 characters"),
+  job: z
+    .nativeEnum(JobType, {
+      errorMap: (issue, ctx) => {
+        if (issue.code === "invalid_enum_value") {
+          return {
+            message: `Invalid character job type, available options are: Warrior, Thief, Mage`,
+          };
+        }
+        return { message: ctx.defaultError };
+      },
+    })
+    .describe(
+      "Character job type, available options are: Warrior, Thief, Mage"
+    ),
+  hp: z.number().positive(),
+  currentHp: z.number(),
+  strength: z.number().positive(),
+  dexterity: z.number().positive(),
+  intelligence: z.number().positive(),
+});
 
 export const CharacterDetailsSchema = z.object({
   id: z.number(),
@@ -62,6 +85,7 @@ export const CharacterListItemSchema = z.object({
   alive: z.boolean(),
 });
 
+export class CharacterDto extends createZodDto(CharacterSchema) {}
 export class CreateCharacterDto extends createZodDto(CreateCharacterSchema) {}
 export class CharacterDetailsDto extends createZodDto(CharacterDetailsSchema) {}
 export class CharacterListItemDto extends createZodDto(
