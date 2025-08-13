@@ -3,6 +3,7 @@ import {
   CharacterDetailsDto,
   CharacterListItemDto,
   CreateCharacterDto,
+  CharacterDto,
 } from "../dto/createCharacter.dto";
 import { JobType } from "src/common/types/jobs";
 import { JobsService } from "src/modules/jobs/services/jobs.service";
@@ -11,7 +12,7 @@ import { JobsService } from "src/modules/jobs/services/jobs.service";
 export class CharactersService {
   constructor(private jobService: JobsService) {}
 
-  private characters: CreateCharacterDto[] = [];
+  private characters: CharacterDto[] = [];
 
   private verifyCharacterNameIsUnique(name: string) {
     return this.characters.some((character) => character.name === name);
@@ -27,6 +28,10 @@ export class CharactersService {
     };
   }
 
+  private getCharacterById(id: number) {
+    return this.characters.find((character) => character.id === id);
+  }
+
   findAll() {
     return this.characters.map((character) =>
       CharacterListItemDto.schema.parse(character)
@@ -34,10 +39,10 @@ export class CharactersService {
   }
 
   findOne(id: number) {
-    const character = this.characters.find((character) => character.id === id);
+    const character = this.getCharacterById(id);
 
     if (!character) {
-      throw new Error("Character not found");
+      throw new Error(`Character with id ${id} not found`);
     }
 
     const jobAttributes = this.jobService.getJobAttributes(character.job);
@@ -55,9 +60,12 @@ export class CharactersService {
       throw new Error("Character name already exists");
     }
 
-    const newCharacter = CreateCharacterDto.schema.parse({
+    const jobStats = this.calculatePlayerInitialStats(createCharacterDto.job);
+
+    const newCharacter = CharacterDto.schema.parse({
       ...createCharacterDto,
-      ...this.calculatePlayerInitialStats(createCharacterDto.job),
+      ...jobStats,
+      currentHp: jobStats.hp,
       id: this.characters.length + 1,
     });
 
