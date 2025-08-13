@@ -1,13 +1,14 @@
 import { Injectable } from "@nestjs/common";
-import { CreateCharacterDto } from "../dto/createCharacter.dto";
+import { CreateCharacterDto, JobType } from "../dto/createCharacter.dto";
 
 @Injectable()
 export class CharactersService {
   private characters: CreateCharacterDto[] = [
     {
       id: 1,
+      level: 1,
       name: "John Doe",
-      job: "Warrior",
+      job: JobType.Warrior,
     },
   ];
   findAll() {
@@ -23,5 +24,13 @@ export class CharactersService {
       ...createCharacterDto,
       id: this.characters.length + 1,
     });
+  }
+
+  update(id: number, updateCharacterDto: CreateCharacterDto) {
+    const index = this.characters.findIndex((character) => character.id === id);
+    this.characters[index] = {
+      ...this.characters[index],
+      ...updateCharacterDto,
+    };
   }
 }

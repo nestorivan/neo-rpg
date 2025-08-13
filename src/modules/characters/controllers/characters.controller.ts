@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+} from "@nestjs/common";
 import { CharactersService } from "../services/characters.service";
 import { CreateCharacterDto } from "../dto/createCharacter.dto";
 
@@ -12,7 +20,7 @@ export class CharactersController {
   }
 
   @Get(":id")
-  findOne(@Param("id") id: number) {
+  findOne(@Param("id", ParseIntPipe) id: number) {
     return this.charactersService.findOne(id);
   }
 
@@ -22,6 +30,18 @@ export class CharactersController {
     return {
       message: "Character created successfully",
       data: createCharacterDto,
+    };
+  }
+
+  @Patch(":id")
+  update(
+    @Param("id") id: number,
+    @Body() updateCharacterDto: CreateCharacterDto
+  ) {
+    this.charactersService.update(id, updateCharacterDto);
+    return {
+      message: "Character updated successfully",
+      data: updateCharacterDto,
     };
   }
 }
