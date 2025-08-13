@@ -1,17 +1,28 @@
 import { Injectable } from "@nestjs/common";
 import { CreateCharacterDto } from "../dto/createCharacter.dto";
 import { JobType } from "src/common/types/jobs";
+import { JobsService } from "src/modules/jobs/services/jobs.service";
 
 @Injectable()
 export class CharactersService {
-  private characters: CreateCharacterDto[] = [
-    {
-      id: 1,
-      level: 1,
-      name: "John Doe",
-      job: JobType.Warrior,
-    },
-  ];
+  constructor(private jobService: JobsService) {}
+
+  private characters: CreateCharacterDto[] = [];
+
+  private verifyCharacterNameIsUnique(name: string) {
+    return this.characters.some((character) => character.name === name);
+  }
+
+  private calculatePlayerInitialStats(job: JobType) {
+    const jobAttributes = this.jobService.getJobAttributes(job);
+    return {
+      health: jobAttributes.hp,
+      strength: jobAttributes.strength,
+      dexterity: jobAttributes.dexterity,
+      intelligence: jobAttributes.intelligence,
+    };
+  }
+
   findAll() {
     return this.characters;
   }
@@ -21,8 +32,13 @@ export class CharactersService {
   }
 
   create(createCharacterDto: CreateCharacterDto) {
+    if (this.verifyCharacterNameIsUnique(createCharacterDto.name)) {
+      throw new Error("Character name already exists");
+    }
+
     return this.characters.push({
       ...createCharacterDto,
+      ...this.calculatePlayerInitialStats(createCharacterDto.job),
       id: this.characters.length + 1,
     });
   }
