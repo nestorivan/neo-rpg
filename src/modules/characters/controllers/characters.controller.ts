@@ -21,7 +21,14 @@ export class CharactersController {
 
   @Get(":id")
   findOne(@Param("id", ParseIntPipe) id: number) {
-    return this.charactersService.findOne(id);
+    try {
+      return this.charactersService.findOne(id);
+    } catch (error) {
+      return {
+        message: "Character not found",
+        data: error.message,
+      };
+    }
   }
 
   @Post()
