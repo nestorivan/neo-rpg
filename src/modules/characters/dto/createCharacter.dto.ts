@@ -11,6 +11,10 @@ const CreateCharacterSchema = z
       .string()
       .min(4)
       .max(15)
+      .regex(
+        /^[a-zA-Z_]+$/,
+        "Character name can only contain letters and underscores"
+      )
       .describe("Character name, must be between 4 and 15 characters"),
     job: z
       .nativeEnum(JobType, {
