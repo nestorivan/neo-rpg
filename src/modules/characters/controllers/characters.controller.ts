@@ -26,7 +26,14 @@ export class CharactersController {
 
   @Post()
   create(@Body() createCharacterDto: CreateCharacterDto) {
-    this.charactersService.create(createCharacterDto);
+    try {
+      this.charactersService.create(createCharacterDto);
+    } catch (error) {
+      return {
+        message: "Character creation failed",
+        data: error.message,
+      };
+    }
     return {
       message: "Character created successfully",
       data: createCharacterDto,

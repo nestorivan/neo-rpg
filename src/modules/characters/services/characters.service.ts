@@ -1,5 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { CreateCharacterDto } from "../dto/createCharacter.dto";
+import {
+  CharacterDetailsDto,
+  CharacterListItemDto,
+  CreateCharacterDto,
+} from "../dto/createCharacter.dto";
 import { JobType } from "src/common/types/jobs";
 import { JobsService } from "src/modules/jobs/services/jobs.service";
 
@@ -16,7 +20,7 @@ export class CharactersService {
   private calculatePlayerInitialStats(job: JobType) {
     const jobAttributes = this.jobService.getJobAttributes(job);
     return {
-      health: jobAttributes.hp,
+      hp: jobAttributes.hp,
       strength: jobAttributes.strength,
       dexterity: jobAttributes.dexterity,
       intelligence: jobAttributes.intelligence,
@@ -24,11 +28,26 @@ export class CharactersService {
   }
 
   findAll() {
-    return this.characters;
+    return this.characters.map((character) =>
+      CharacterListItemDto.schema.parse(character)
+    );
   }
 
   findOne(id: number) {
-    return this.characters.find((character) => character.id === id);
+    const character = this.characters.find((character) => character.id === id);
+
+    if (!character) {
+      throw new Error("Character not found");
+    }
+
+    const jobAttributes = this.jobService.getJobAttributes(character.job);
+    const parsedCharacter = CharacterDetailsDto.schema.parse({
+      ...character,
+      attackModifier: jobAttributes.attackModifier,
+      speedModifier: jobAttributes.speedModifier,
+    });
+
+    return parsedCharacter;
   }
 
   create(createCharacterDto: CreateCharacterDto) {
@@ -36,11 +55,13 @@ export class CharactersService {
       throw new Error("Character name already exists");
     }
 
-    return this.characters.push({
+    const newCharacter = CreateCharacterDto.schema.parse({
       ...createCharacterDto,
       ...this.calculatePlayerInitialStats(createCharacterDto.job),
       id: this.characters.length + 1,
     });
+
+    return this.characters.push(newCharacter);
   }
 
   update(id: number, updateCharacterDto: CreateCharacterDto) {
