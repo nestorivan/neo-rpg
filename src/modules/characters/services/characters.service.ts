@@ -43,8 +43,8 @@ export class CharactersService {
     const jobAttributes = this.jobService.getJobAttributes(character.job);
     const parsedCharacter = CharacterDetailsDto.schema.parse({
       ...character,
-      attackModifier: jobAttributes.attackModifier,
-      speedModifier: jobAttributes.speedModifier,
+      attackModifier: Object.fromEntries(jobAttributes.attackModifier),
+      speedModifier: Object.fromEntries(jobAttributes.speedModifier),
     });
 
     return parsedCharacter;
