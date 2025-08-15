@@ -7,3 +7,5 @@ export const CreateBattleSchema = z.object({
 });
 
 export class CreateBattleDto extends createZodDto(CreateBattleSchema) {}
+
+export type CreateBattle = z.infer<typeof CreateBattleSchema>;

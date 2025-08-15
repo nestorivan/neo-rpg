@@ -18,8 +18,6 @@ export class Battle {
     this.battleId = uuid();
     this.opponent1 = opponent1;
     this.opponent2 = opponent2;
-
-    this.initializeBattle();
   }
 
   get battleLogs() {
@@ -30,7 +28,7 @@ export class Battle {
     this.battleLog.push(battleLog);
   }
 
-  private initializeBattle() {
+  initializeBattle() {
     try {
       if (!this.checkIfCharactersIsAlive(this.opponent1)) {
         throw new Error(`Character ${this.opponent1.name} is dead`);
@@ -212,7 +210,7 @@ export class Battle {
 
     defender.currentHp = hpPointsAfterDamage;
     this.writeBattleLog(
-      `${attacker.name} attacks ${defender.name} for ${damage}, CharacterY has ${hpPointsAfterDamage} HP remaining.`
+      `${attacker.name} attacks ${defender.name} for ${damage}, ${defender.name} has ${hpPointsAfterDamage} HP remaining.`
     );
   }
 
