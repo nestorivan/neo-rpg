@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { CharactersService } from "@src/modules/characters/services/characters.service";
-import { JobsService } from "@src/modules/jobs/services/jobs.service";
 import { CreateBattle } from "../dto/battle.dto";
 import { Battle } from "../models/battle";
 import { CharacterDetails } from "@src/modules/characters/dto/createCharacter.dto";
@@ -23,7 +22,7 @@ export class BattleService {
     character1: CharacterDetails,
     character2: CharacterDetails
   ) {
-    const battle = new Battle(character1, character2, new JobsService());
+    const battle = new Battle(character1, character2);
     battle.initializeBattle();
 
     this.recordBattle(battle.battleId, battle.battleLogs);
@@ -31,18 +30,22 @@ export class BattleService {
   }
 
   create(createBattleDto: CreateBattle) {
-    const character1 = this.characterService.findOne(
-      createBattleDto.characterId
-    );
-    const character2 = this.characterService.findOne(
-      createBattleDto.opponentId
-    );
+    try {
+      const character1 = this.characterService.findOne(
+        createBattleDto.characterId
+      );
+      const character2 = this.characterService.findOne(
+        createBattleDto.opponentId
+      );
 
-    const battleId = this.startBattle(character1, character2);
+      const battleId = this.startBattle(character1, character2);
 
-    this.persistBattleResults(character1);
-    this.persistBattleResults(character2);
+      this.persistBattleResults(character1);
+      this.persistBattleResults(character2);
 
-    return this.battles.get(battleId);
+      return this.battles.get(battleId);
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }

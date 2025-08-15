@@ -1,6 +1,5 @@
 import { PlayerAttribute } from "@src/common/types/playerAttributes";
 import { CharacterDetails } from "@src/modules/characters/dto/createCharacter.dto";
-import { JobsService } from "@src/modules/jobs/services/jobs.service";
 import { v4 as uuid } from "uuid";
 
 export class Battle {
@@ -9,11 +8,7 @@ export class Battle {
   private opponent2: CharacterDetails;
   private battleLog: string[] = [];
 
-  constructor(
-    opponent1: CharacterDetails,
-    opponent2: CharacterDetails,
-    private readonly jobService: JobsService
-  ) {
+  constructor(opponent1: CharacterDetails, opponent2: CharacterDetails) {
     this.battleId = uuid();
     this.opponent1 = opponent1;
     this.opponent2 = opponent2;
@@ -97,20 +92,17 @@ export class Battle {
   }
 
   private calculateCharacterSpeedModifier(character: CharacterDetails) {
-    const jobAttributes = this.jobService.getJobAttributes(character.job);
-
     let speedModifier = 0;
 
-    jobAttributes.speedModifier.forEach(
-      (value: number, key: PlayerAttribute) => {
-        const characterAttribute = character[key];
+    character.speedModifier.forEach((modifier) => {
+      const { key, value } = modifier;
+      const characterAttribute = character[key];
 
-        const calculatedAttributeSpeedModifier =
-          characterAttribute * (value / 100);
+      const calculatedAttributeSpeedModifier =
+        characterAttribute * (value / 100);
 
-        speedModifier += calculatedAttributeSpeedModifier;
-      }
-    );
+      speedModifier += calculatedAttributeSpeedModifier;
+    });
 
     return speedModifier;
   }
@@ -121,20 +113,17 @@ export class Battle {
   }
 
   private calculateCharacterAttackModifier(character: CharacterDetails) {
-    const jobAttributes = this.jobService.getJobAttributes(character.job);
-
     let attackModifier = 0;
 
-    jobAttributes.attackModifier.forEach(
-      (value: number, key: PlayerAttribute) => {
-        const characterAttribute = character[key];
+    character.attackModifier.forEach((modifier) => {
+      const { key, value } = modifier;
+      const characterAttribute = character[key];
 
-        const calculatedAttributeAttackModifier =
-          characterAttribute * (value / 100);
+      const calculatedAttributeAttackModifier =
+        characterAttribute * (value / 100);
 
-        attackModifier += calculatedAttributeAttackModifier;
-      }
-    );
+      attackModifier += calculatedAttributeAttackModifier;
+    });
 
     return attackModifier;
   }
