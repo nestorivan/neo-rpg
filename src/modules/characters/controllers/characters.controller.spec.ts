@@ -112,6 +112,20 @@ describe("CharactersController", () => {
       expect(message).toBe("Character creation failed");
       expect(data).toBeNull();
     });
+
+    it("should throw an error if job is invalid", () => {
+      mockCharactersService.create.mockImplementationOnce(() => {
+        throw new Error();
+      });
+      const createCharacterDto = {
+        name: "Test Character",
+        job: "invalid_job" as JobType,
+      };
+
+      const { message, data } = controller.create(createCharacterDto);
+      expect(message).toBe("Character creation failed");
+      expect(data).toBeNull();
+    });
   });
 
   describe("update", () => {
