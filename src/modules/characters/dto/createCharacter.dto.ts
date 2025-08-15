@@ -1,6 +1,12 @@
+import { PlayerAttribute } from "@src/common/types/playerAttributes";
 import { createZodDto } from "nestjs-zod";
 import { JobType } from "src/common/types/jobs";
 import { z } from "zod";
+
+export const CharacterByIdSchema = z
+  .number()
+  .positive()
+  .describe("Character id");
 
 const CreateCharacterSchema = z
   .object({
@@ -74,8 +80,8 @@ export const CharacterDetailsSchema = z.object({
   strength: z.number(),
   dexterity: z.number(),
   intelligence: z.number(),
-  attackModifier: z.any(),
-  speedModifier: z.any(),
+  attackModifier: z.record(z.nativeEnum(PlayerAttribute), z.number()),
+  speedModifier: z.record(z.nativeEnum(PlayerAttribute), z.number()),
 });
 
 export const CharacterListItemSchema = z.object({
@@ -85,9 +91,16 @@ export const CharacterListItemSchema = z.object({
   alive: z.boolean(),
 });
 
+//DTO
 export class CharacterDto extends createZodDto(CharacterSchema) {}
 export class CreateCharacterDto extends createZodDto(CreateCharacterSchema) {}
 export class CharacterDetailsDto extends createZodDto(CharacterDetailsSchema) {}
 export class CharacterListItemDto extends createZodDto(
   CharacterListItemSchema
 ) {}
+
+//MODELS
+export type CharacterDetails = z.infer<typeof CharacterDetailsSchema>;
+export type CharacterListItem = z.infer<typeof CharacterListItemSchema>;
+export type CreateCharacter = z.infer<typeof CreateCharacterSchema>;
+export type Character = z.infer<typeof CharacterSchema>;

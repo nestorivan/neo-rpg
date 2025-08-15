@@ -8,7 +8,11 @@ import {
   Post,
 } from "@nestjs/common";
 import { CharactersService } from "../services/characters.service";
-import { CreateCharacterDto } from "../dto/createCharacter.dto";
+import {
+  CreateCharacterDto,
+  CharacterByIdSchema,
+} from "../dto/createCharacter.dto";
+import { ZodValidationPipe } from "nestjs-zod";
 
 @Controller("characters")
 export class CharactersController {
@@ -20,9 +24,12 @@ export class CharactersController {
   }
 
   @Get(":id")
-  findOne(@Param("id", ParseIntPipe) id: number) {
+  findOne(
+    @Param("id", ParseIntPipe, new ZodValidationPipe(CharacterByIdSchema))
+    characterId: number
+  ) {
     try {
-      return this.charactersService.findOne(id);
+      return this.charactersService.findOne(characterId);
     } catch (error) {
       return {
         message: "Character not found",

@@ -4,6 +4,9 @@ import {
   CharacterListItemDto,
   CreateCharacterDto,
   CharacterDto,
+  CharacterDetails,
+  Character,
+  CreateCharacter,
 } from "../dto/createCharacter.dto";
 import { JobType } from "src/common/types/jobs";
 import { JobsService } from "src/modules/jobs/services/jobs.service";
@@ -28,8 +31,8 @@ export class CharactersService {
     };
   }
 
-  private getCharacterById(id: number) {
-    return this.characters.find((character) => character.id === id);
+  private getCharacterById(id: number): Character | null {
+    return this.characters.find((character) => character.id === id) ?? null;
   }
 
   findAll() {
@@ -38,7 +41,7 @@ export class CharactersService {
     );
   }
 
-  findOne(id: number) {
+  findOne(id: number): CharacterDetails {
     const character = this.getCharacterById(id);
 
     if (!character) {
@@ -55,7 +58,7 @@ export class CharactersService {
     return parsedCharacter;
   }
 
-  create(createCharacterDto: CreateCharacterDto) {
+  create(createCharacterDto: CreateCharacter): CharacterDto {
     if (this.verifyCharacterNameIsUnique(createCharacterDto.name)) {
       throw new Error("Character name already exists");
     }
@@ -69,7 +72,9 @@ export class CharactersService {
       id: this.characters.length + 1,
     });
 
-    return this.characters.push(newCharacter);
+    this.characters.push(newCharacter);
+
+    return newCharacter;
   }
 
   update(id: number, updateCharacterDto: CreateCharacterDto) {
