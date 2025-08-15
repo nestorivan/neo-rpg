@@ -90,12 +90,12 @@ export class Battle {
         `${this.opponent1.name} ${opponent1RandomSpeed} speed was faster than ${this.opponent2.name} ${opponent2RandomSpeed} speed and will begin this round.`
       );
       this.turnOrder = [this.opponent1, this.opponent2];
-    } else {
-      this.writeBattleLog(
-        `${this.opponent2.name} ${opponent2RandomSpeed} speed was faster than ${this.opponent1.name} ${opponent1RandomSpeed} speed and will begin this round.`
-      );
-      this.turnOrder = [this.opponent2, this.opponent1];
     }
+
+    this.writeBattleLog(
+      `${this.opponent2.name} ${opponent2RandomSpeed} speed was faster than ${this.opponent1.name} ${opponent1RandomSpeed} speed and will begin this round.`
+    );
+    this.turnOrder = [this.opponent2, this.opponent1];
   }
 
   private calculateCharacterSpeedModifier(character: CharacterDetails) {
