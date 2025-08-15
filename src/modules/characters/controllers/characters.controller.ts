@@ -7,12 +7,12 @@ import {
   Patch,
   Post,
 } from "@nestjs/common";
-import { CharactersService } from "../services/characters.service";
 import {
   CreateCharacterDto,
   CharacterByIdSchema,
 } from "../dto/createCharacter.dto";
 import { ZodValidationPipe } from "nestjs-zod";
+import { CharactersService } from "../services/characters.service";
 
 @Controller("characters")
 export class CharactersController {
@@ -33,7 +33,7 @@ export class CharactersController {
     } catch (error) {
       return {
         message: "Character not found",
-        data: error.message,
+        data: null,
       };
     }
   }
@@ -41,17 +41,19 @@ export class CharactersController {
   @Post()
   create(@Body() createCharacterDto: CreateCharacterDto) {
     try {
-      this.charactersService.create(createCharacterDto);
+      const createdCharacter =
+        this.charactersService.create(createCharacterDto);
+
+      return {
+        message: "Character created successfully",
+        data: createdCharacter,
+      };
     } catch (error) {
       return {
         message: "Character creation failed",
-        data: error.message,
+        data: null,
       };
     }
-    return {
-      message: "Character created successfully",
-      data: createCharacterDto,
-    };
   }
 
   @Patch(":id")
@@ -59,10 +61,20 @@ export class CharactersController {
     @Param("id") id: number,
     @Body() updateCharacterDto: CreateCharacterDto
   ) {
-    this.charactersService.update(id, updateCharacterDto);
-    return {
-      message: "Character updated successfully",
-      data: updateCharacterDto,
-    };
+    try {
+      const updatedCharacter = this.charactersService.update(
+        id,
+        updateCharacterDto
+      );
+      return {
+        message: "Character updated successfully",
+        data: updatedCharacter,
+      };
+    } catch (error) {
+      return {
+        message: "Character update failed",
+        data: null,
+      };
+    }
   }
 }
