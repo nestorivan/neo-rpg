@@ -7,7 +7,6 @@ export class Battle {
   battleId: string;
   private opponent1: CharacterDetails;
   private opponent2: CharacterDetails;
-  private turnOrder: [CharacterDetails, CharacterDetails];
   private battleLog: string[] = [];
 
   constructor(
@@ -42,7 +41,6 @@ export class Battle {
         `Battle between ${this.opponent1.name} (${this.opponent1.job}) - ${this.opponent1.currentHp} HP and ${this.opponent2.name} (${this.opponent2.job}) - ${this.opponent2.currentHp} HP begins!`
       );
 
-      this.getBattleOrder();
       this.battleLoop();
     } catch (error) {
       return {
@@ -60,7 +58,7 @@ export class Battle {
     return true;
   }
 
-  private getBattleOrder(): void {
+  private getBattleOrder(): [CharacterDetails, CharacterDetails] {
     const opponent1SpeedModifier = this.calculateCharacterSpeedModifier(
       this.opponent1
     );
@@ -89,14 +87,13 @@ export class Battle {
       this.writeBattleLog(
         `${this.opponent1.name} ${opponent1RandomSpeed} speed was faster than ${this.opponent2.name} ${opponent2RandomSpeed} speed and will begin this round.`
       );
-      this.turnOrder = [this.opponent1, this.opponent2];
-      return;
+      return [this.opponent1, this.opponent2];
     }
 
     this.writeBattleLog(
       `${this.opponent2.name} ${opponent2RandomSpeed} speed was faster than ${this.opponent1.name} ${opponent1RandomSpeed} speed and will begin this round.`
     );
-    this.turnOrder = [this.opponent2, this.opponent1];
+    return [this.opponent2, this.opponent1];
   }
 
   private calculateCharacterSpeedModifier(character: CharacterDetails) {
@@ -148,8 +145,8 @@ export class Battle {
       this.checkIfCharactersIsAlive(this.opponent1) &&
       this.checkIfCharactersIsAlive(this.opponent2)
     ) {
-      const [attacker, defender] = this.turnOrder;
       // we start the attack phase with the order we got from the getBattleOrder method
+      const [attacker, defender] = this.getBattleOrder();
       this.attackPhase(attacker, defender);
       if (this.checkIfAnyCharacterIsDead()) {
         break;
@@ -158,9 +155,6 @@ export class Battle {
       if (this.checkIfAnyCharacterIsDead()) {
         break;
       }
-
-      // after the attack was completed we change the turn order
-      this.getBattleOrder();
     }
   }
 
