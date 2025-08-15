@@ -32,7 +32,7 @@ export class CharactersController {
       return this.charactersService.findOne(characterId);
     } catch (error) {
       return {
-        message: "Character not found",
+        message: error.message,
         data: null,
       };
     }
