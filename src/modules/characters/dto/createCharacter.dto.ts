@@ -80,8 +80,12 @@ export const CharacterDetailsSchema = z.object({
   strength: z.number(),
   dexterity: z.number(),
   intelligence: z.number(),
-  attackModifier: z.record(z.nativeEnum(PlayerAttribute), z.number()),
-  speedModifier: z.record(z.nativeEnum(PlayerAttribute), z.number()),
+  attackModifier: z.array(
+    z.object({ key: z.nativeEnum(PlayerAttribute), value: z.number() })
+  ),
+  speedModifier: z.array(
+    z.object({ key: z.nativeEnum(PlayerAttribute), value: z.number() })
+  ),
 });
 
 export const CharacterListItemSchema = z.object({

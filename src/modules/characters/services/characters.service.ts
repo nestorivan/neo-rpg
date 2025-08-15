@@ -54,13 +54,23 @@ export class CharactersService {
     }
 
     const jobAttributes = this.jobService.getJobAttributes(character.job);
-    const parsedCharacter = CharacterDetailsDto.schema.parse({
-      ...character,
-      attackModifier: Object.fromEntries(jobAttributes.attackModifier),
-      speedModifier: Object.fromEntries(jobAttributes.speedModifier),
-    });
+    try {
+      const parsedCharacter = CharacterDetailsDto.schema.parse({
+        ...character,
+        attackModifier: Array.from(
+          jobAttributes.attackModifier,
+          ([key, value]) => ({ key, value })
+        ),
+        speedModifier: Array.from(
+          jobAttributes.speedModifier,
+          ([key, value]) => ({ key, value })
+        ),
+      });
 
-    return parsedCharacter;
+      return parsedCharacter;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   create(createCharacterDto: CreateCharacter): CharacterDto {
