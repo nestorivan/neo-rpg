@@ -8,8 +8,9 @@ import {
   Character,
   CreateCharacter,
 } from "../dto/createCharacter.dto";
-import { JobType } from "src/common/types/jobs";
+import { JobType } from "@src/common/types/jobs";
 import { JobsService } from "@src/modules/jobs/services/jobs.service";
+import { z } from "zod";
 
 @Injectable()
 export class CharactersService {
@@ -19,6 +20,10 @@ export class CharactersService {
 
   private verifyCharacterNameIsUnique(name: string) {
     return this.characters.some((character) => character.name === name);
+  }
+
+  private verifyCharacterJobIsValid(job: JobType) {
+    return z.nativeEnum(JobType).safeParse(job).success;
   }
 
   private calculatePlayerInitialStats(job: JobType) {
@@ -63,6 +68,12 @@ export class CharactersService {
       throw new Error("Character name already exists");
     }
 
+    if (!this.verifyCharacterJobIsValid(createCharacterDto.job)) {
+      throw new Error(
+        "Invalid character job type, available options are: Warrior, Thief, Mage"
+      );
+    }
+
     const jobStats = this.calculatePlayerInitialStats(createCharacterDto.job);
 
     const newCharacter = CharacterDto.schema.parse({
@@ -78,12 +89,20 @@ export class CharactersService {
   }
 
   update(id: number, updateCharacterDto: CreateCharacterDto) {
+    const character = this.getCharacterById(id);
+    if (!character) {
+      throw new Error(`Character with id ${id} not found`);
+    }
+
     const index = this.characters.findIndex((character) => character.id === id);
+
     this.characters[index] = {
-      ...this.characters[index],
+      ...character,
       ...updateCharacterDto,
     };
 
-    return CharacterDetailsDto.schema.parse(this.characters[index]);
+    return CharacterDto.schema.parse({
+      ...this.characters[index],
+    });
   }
 }
