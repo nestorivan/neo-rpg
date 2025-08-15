@@ -64,8 +64,14 @@ describe("CharactersService", () => {
       const character = service.findOne(1);
       expect(character).toEqual({
         ...mockedCharacter,
-        attackModifier: Object.fromEntries(expectedJob.attackModifier),
-        speedModifier: Object.fromEntries(expectedJob.speedModifier),
+        attackModifier: Array.from(
+          expectedJob.attackModifier,
+          ([key, value]) => ({ key, value })
+        ),
+        speedModifier: Array.from(
+          expectedJob.speedModifier,
+          ([key, value]) => ({ key, value })
+        ),
       });
     });
 
