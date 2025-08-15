@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Post } from "@nestjs/common";
 import { BattleService } from "../services/battle.service";
 import { CreateBattleDto } from "../dto/battle.dto";
 
@@ -8,6 +8,17 @@ export class BattleController {
 
   @Post()
   create(@Body() createBattleDto: CreateBattleDto) {
-    return this.battleService.create(createBattleDto);
+    try {
+      const result = this.battleService.create(createBattleDto);
+      return {
+        message: "Battle created successfully",
+        data: result,
+      };
+    } catch (error) {
+      return {
+        message: error.message,
+        data: null,
+      };
+    }
   }
 }
