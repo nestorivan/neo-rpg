@@ -1,6 +1,6 @@
 import { PlayerAttribute } from "@src/common/types/playerAttributes";
 import { createZodDto } from "nestjs-zod";
-import { JobType } from "src/common/types/jobs";
+import { JobType } from "@src/common/types/jobs";
 import { z } from "zod";
 
 export const CharacterByIdSchema = z

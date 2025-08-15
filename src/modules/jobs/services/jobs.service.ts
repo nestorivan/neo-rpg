@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { JobType } from "src/common/types/jobs";
-import { PlayerAttribute } from "src/common/types/playerAttributes";
+import { JobType } from "@src/common/types/jobs";
+import { PlayerAttribute } from "@src/common/types/playerAttributes";
 
 interface JobDescription {
   hp: number;

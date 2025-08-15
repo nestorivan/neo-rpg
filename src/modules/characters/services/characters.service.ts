@@ -9,11 +9,11 @@ import {
   CreateCharacter,
 } from "../dto/createCharacter.dto";
 import { JobType } from "src/common/types/jobs";
-import { JobsService } from "src/modules/jobs/services/jobs.service";
+import { JobsService } from "@src/modules/jobs/services/jobs.service";
 
 @Injectable()
 export class CharactersService {
-  constructor(private jobService: JobsService) {}
+  constructor(private readonly jobService: JobsService) {}
 
   private characters: CharacterDto[] = [];
 
@@ -83,5 +83,7 @@ export class CharactersService {
       ...this.characters[index],
       ...updateCharacterDto,
     };
+
+    return CharacterDetailsDto.schema.parse(this.characters[index]);
   }
 }
