@@ -1,4 +1,3 @@
-import { PlayerAttribute } from "@src/common/types/playerAttributes";
 import { CharacterDetails } from "@src/modules/characters/dto/createCharacter.dto";
 import { v4 as uuid } from "uuid";
 
