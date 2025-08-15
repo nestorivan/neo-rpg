@@ -13,17 +13,20 @@ import {
 } from "../dto/createCharacter.dto";
 import { ZodValidationPipe } from "nestjs-zod";
 import { CharactersService } from "../services/characters.service";
+import { LogMethod } from "@src/common/decorators/logMethod.decorator";
 
 @Controller("characters")
 export class CharactersController {
   constructor(private readonly charactersService: CharactersService) {}
 
   @Get()
+  @LogMethod()
   findAll() {
     return this.charactersService.findAll();
   }
 
   @Get(":id")
+  @LogMethod()
   findOne(
     @Param("id", ParseIntPipe, new ZodValidationPipe(CharacterByIdSchema))
     characterId: number
@@ -32,13 +35,14 @@ export class CharactersController {
       return this.charactersService.findOne(characterId);
     } catch (error) {
       return {
-        message: error.message,
+        message: (error as Error).message,
         data: null,
       };
     }
   }
 
   @Post()
+  @LogMethod()
   create(@Body() createCharacterDto: CreateCharacterDto) {
     try {
       const createdCharacter =
@@ -57,6 +61,7 @@ export class CharactersController {
   }
 
   @Patch(":id")
+  @LogMethod()
   update(
     @Param("id") id: number,
     @Body() updateCharacterDto: CreateCharacterDto
