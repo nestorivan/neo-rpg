@@ -90,6 +90,7 @@ export class Battle {
         `${this.opponent1.name} ${opponent1RandomSpeed} speed was faster than ${this.opponent2.name} ${opponent2RandomSpeed} speed and will begin this round.`
       );
       this.turnOrder = [this.opponent1, this.opponent2];
+      return;
     }
 
     this.writeBattleLog(
