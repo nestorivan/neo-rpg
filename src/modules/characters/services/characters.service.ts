@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import {
   CharacterDetailsDto,
   CharacterListItemDto,
@@ -11,6 +11,7 @@ import {
 import { JobType } from "@src/common/types/jobs";
 import { JobsService } from "@src/modules/jobs/services/jobs.service";
 import { z } from "zod";
+import { JobDescription } from "@src/modules/jobs/models/jobDescription";
 
 @Injectable()
 export class CharactersService {
@@ -19,14 +20,34 @@ export class CharactersService {
   private characters: CharacterDto[] = [];
 
   private verifyCharacterNameIsUnique(name: string) {
-    return this.characters.some((character) => character.name === name);
+    const isNotUnique = this.characters.some(
+      (character) => character.name === name
+    );
+
+    if (isNotUnique) {
+      throw new HttpException(
+        "Character name already exists",
+        HttpStatus.CONFLICT
+      );
+    }
+    return isNotUnique;
   }
 
   private verifyCharacterJobIsValid(job: JobType) {
-    return z.nativeEnum(JobType).safeParse(job).success;
+    const isValid = z.nativeEnum(JobType).safeParse(job).success;
+
+    if (!isValid) {
+      throw new HttpException(
+        "Invalid character job type, available options are: Warrior, Thief, Mage",
+        HttpStatus.BAD_REQUEST
+      );
+    }
+    return isValid;
   }
 
-  private calculatePlayerInitialStats(job: JobType) {
+  private calculatePlayerInitialStats(
+    job: JobType
+  ): Omit<JobDescription, "attackModifier" | "speedModifier"> {
     const jobAttributes = this.jobService.getJobAttributes(job);
     return {
       hp: jobAttributes.hp,
@@ -36,22 +57,29 @@ export class CharactersService {
     };
   }
 
-  private getCharacterById(id: number): Character | null {
-    return this.characters.find((character) => character.id === id) ?? null;
+  private getCharacterById(id: number): Character {
+    const character = this.characters.find((character) => character.id === id);
+    if (!character) {
+      throw new HttpException(
+        `Character with id ${id} not found`,
+        HttpStatus.NOT_FOUND
+      );
+    }
+    return character;
   }
 
-  findAll() {
-    return this.characters.map((character) =>
-      CharacterListItemDto.schema.parse(character)
-    );
+  findAll(): CharacterListItemDto[] {
+    try {
+      return this.characters.map((character) =>
+        CharacterListItemDto.schema.parse(character)
+      );
+    } catch (error) {
+      throw new HttpException((error as Error).message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   findOne(id: number): CharacterDetails {
     const character = this.getCharacterById(id);
-
-    if (!character) {
-      throw new Error(`Character with id ${id} not found`);
-    }
 
     const jobAttributes = this.jobService.getJobAttributes(character.job);
     try {
@@ -69,50 +97,51 @@ export class CharactersService {
 
       return parsedCharacter;
     } catch (error) {
-      throw new Error(error.message);
+      throw new HttpException((error as Error).message, HttpStatus.BAD_REQUEST);
     }
   }
 
   create(createCharacterDto: CreateCharacter): CharacterDto {
-    if (this.verifyCharacterNameIsUnique(createCharacterDto.name)) {
-      throw new Error("Character name already exists");
+    try {
+      this.verifyCharacterNameIsUnique(createCharacterDto.name);
+
+      this.verifyCharacterJobIsValid(createCharacterDto.job);
+
+      const jobStats = this.calculatePlayerInitialStats(createCharacterDto.job);
+
+      const newCharacter = CharacterDto.schema.parse({
+        ...createCharacterDto,
+        ...jobStats,
+        currentHp: jobStats.hp,
+        id: this.characters.length + 1,
+      });
+
+      this.characters.push(newCharacter);
+
+      return newCharacter;
+    } catch (error) {
+      throw new HttpException((error as Error).message, HttpStatus.BAD_REQUEST);
     }
-
-    if (!this.verifyCharacterJobIsValid(createCharacterDto.job)) {
-      throw new Error(
-        "Invalid character job type, available options are: Warrior, Thief, Mage"
-      );
-    }
-
-    const jobStats = this.calculatePlayerInitialStats(createCharacterDto.job);
-
-    const newCharacter = CharacterDto.schema.parse({
-      ...createCharacterDto,
-      ...jobStats,
-      currentHp: jobStats.hp,
-      id: this.characters.length + 1,
-    });
-
-    this.characters.push(newCharacter);
-
-    return newCharacter;
   }
 
-  update(id: number, updateCharacterDto: CreateCharacterDto) {
-    const character = this.getCharacterById(id);
-    if (!character) {
-      throw new Error(`Character with id ${id} not found`);
+  update(id: number, updateCharacterDto: CreateCharacterDto): CharacterDto {
+    try {
+      const character = this.getCharacterById(id);
+
+      const index = this.characters.findIndex(
+        (character) => character.id === id
+      );
+
+      this.characters[index] = {
+        ...character,
+        ...updateCharacterDto,
+      };
+
+      return CharacterDto.schema.parse({
+        ...this.characters[index],
+      });
+    } catch (error) {
+      throw new HttpException((error as Error).message, HttpStatus.BAD_REQUEST);
     }
-
-    const index = this.characters.findIndex((character) => character.id === id);
-
-    this.characters[index] = {
-      ...character,
-      ...updateCharacterDto,
-    };
-
-    return CharacterDto.schema.parse({
-      ...this.characters[index],
-    });
   }
 }

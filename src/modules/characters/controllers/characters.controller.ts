@@ -31,33 +31,13 @@ export class CharactersController {
     @Param("id", ParseIntPipe, new ZodValidationPipe(CharacterByIdSchema))
     characterId: number
   ) {
-    try {
-      return this.charactersService.findOne(characterId);
-    } catch (error) {
-      return {
-        message: (error as Error).message,
-        data: null,
-      };
-    }
+    return this.charactersService.findOne(characterId);
   }
 
   @Post()
   @LogMethod()
   create(@Body() createCharacterDto: CreateCharacterDto) {
-    try {
-      const createdCharacter =
-        this.charactersService.create(createCharacterDto);
-
-      return {
-        message: "Character created successfully",
-        data: createdCharacter,
-      };
-    } catch (error) {
-      return {
-        message: "Character creation failed",
-        data: null,
-      };
-    }
+    return this.charactersService.create(createCharacterDto);
   }
 
   @Patch(":id")
@@ -66,20 +46,6 @@ export class CharactersController {
     @Param("id") id: number,
     @Body() updateCharacterDto: CreateCharacterDto
   ) {
-    try {
-      const updatedCharacter = this.charactersService.update(
-        id,
-        updateCharacterDto
-      );
-      return {
-        message: "Character updated successfully",
-        data: updatedCharacter,
-      };
-    } catch (error) {
-      return {
-        message: "Character update failed",
-        data: null,
-      };
-    }
+    return this.charactersService.update(id, updateCharacterDto);
   }
 }
