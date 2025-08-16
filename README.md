@@ -57,7 +57,7 @@ This project is built using the following technologies:
 
 ## Compromises
 
-There are some compromises made in this project because of time constraints:
+There were some compromises made in this project because of time constraints:
 
 - There is no database, all data is stored in memory
 - There is no authentication
