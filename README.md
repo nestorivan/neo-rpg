@@ -53,7 +53,7 @@ This project is built using the following technologies:
 - Swagger
 - Jest
 - Docker
-- Zod for validation schemas
+- Zod for schema validations
 
 ## Compromises
 
