@@ -1,17 +1,17 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { CharactersService } from "@src/modules/characters/services/characters.service";
 import { CreateBattle } from "../dto/battle.dto";
-import { Battle } from "../models/battle";
+import { Battle, BattleResults } from "../models/battle";
 import { CharacterDetails } from "@src/modules/characters/dto/createCharacter.dto";
 
 @Injectable()
 export class BattleService {
-  private battles: Map<string, { id: string; logs: string[] }> = new Map();
+  private battles: Map<string, BattleResults> = new Map();
 
   constructor(private readonly characterService: CharactersService) {}
 
-  private recordBattle(id: string, logs: string[]) {
-    this.battles.set(id, { id, logs });
+  private recordBattle(battleResult: BattleResults) {
+    this.battles.set(battleResult.battleId, battleResult);
   }
 
   private persistBattleResults(character: CharacterDetails) {
@@ -23,10 +23,12 @@ export class BattleService {
     character2: CharacterDetails
   ) {
     const battle = new Battle(character1, character2);
-    battle.initializeBattle();
+    this.persistBattleResults(character1);
+    this.persistBattleResults(character2);
 
-    this.recordBattle(battle.battleId, battle.battleLogs);
-    return battle.battleId;
+    this.recordBattle(battle.battleResults);
+
+    return battle.battleResults;
   }
 
   create(createBattleDto: CreateBattle) {
@@ -38,14 +40,11 @@ export class BattleService {
         createBattleDto.opponentId
       );
 
-      const battleId = this.startBattle(character1, character2);
+      const battleResults = this.startBattle(character1, character2);
 
-      this.persistBattleResults(character1);
-      this.persistBattleResults(character2);
-
-      return this.battles.get(battleId);
+      return this.battles.get(battleResults.battleId);
     } catch (error) {
-      throw new Error(error.message);
+      throw new HttpException((error as Error).message, HttpStatus.BAD_REQUEST);
     }
   }
 }

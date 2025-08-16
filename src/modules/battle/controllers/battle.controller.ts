@@ -10,17 +10,6 @@ export class BattleController {
   @Post()
   @LogMethod()
   create(@Body() createBattleDto: CreateBattleDto) {
-    try {
-      const result = this.battleService.create(createBattleDto);
-      return {
-        message: "Battle created successfully",
-        data: result,
-      };
-    } catch (error) {
-      return {
-        message: error.message,
-        data: null,
-      };
-    }
+    return this.battleService.create(createBattleDto);
   }
 }
