@@ -53,11 +53,12 @@ This project is built using the following technologies:
 - Swagger
 - Jest
 - Docker
-- Zod for validation schemas
+- Zod for schema validations
 
 ## Future improvements
 
 This project was built with a focus on core functionality first. There are several enhancements that can be added in the future to make it more robust and production-ready:
+
 
 - Add a database for persistent data storage
 - Implement authentication and authorization
