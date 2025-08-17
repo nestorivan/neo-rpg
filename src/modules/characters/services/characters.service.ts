@@ -9,6 +9,7 @@ import {
 } from "../dto/createCharacter.dto";
 import { JobType } from "@src/common/types/jobs";
 import { JobsService } from "@src/modules/jobs/services/jobs.service";
+import { z } from "zod";
 import { JobDescription } from "@src/modules/jobs/models/jobDescription";
 
 @Injectable()
@@ -29,6 +30,18 @@ export class CharactersService {
       );
     }
     return isNotUnique;
+  }
+
+  private verifyCharacterJobIsValid(job: JobType) {
+    const isValid = z.nativeEnum(JobType).safeParse(job).success;
+
+    if (!isValid) {
+      throw new HttpException(
+        "Invalid character job type, available options are: Warrior, Thief, Mage",
+        HttpStatus.BAD_REQUEST
+      );
+    }
+    return isValid;
   }
 
   private verifyCreateCharacterDto(createCharacterDto: CreateCharacterDto) {
@@ -99,8 +112,8 @@ export class CharactersService {
 
   create(createCharacterDto: CreateCharacterDto): CharacterDto {
     try {
-      this.verifyCreateCharacterDto(createCharacterDto);
       this.verifyCharacterNameIsUnique(createCharacterDto.name);
+      this.verifyCharacterJobIsValid(createCharacterDto.job);
 
       const jobStats = this.calculatePlayerInitialStats(createCharacterDto.job);
 
