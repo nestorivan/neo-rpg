@@ -3,6 +3,7 @@ import { CharactersController } from "./characters.controller";
 import { CharactersService } from "../services/characters.service";
 import { CharacterDetails, CharacterDto } from "../dto/createCharacter.dto";
 import { JobType } from "@src/common/types/jobs";
+import { HttpException, HttpStatus } from "@nestjs/common";
 
 const mockedCharacter: CharacterDetails = {
   id: 1,
@@ -60,14 +61,22 @@ describe("CharactersController", () => {
 
     it("should throw an error if character not found", () => {
       mockCharactersService.findOne.mockImplementationOnce(() => {
-        throw new Error("Character not found");
+        throw new HttpException(
+          `Character with id 1 not found`,
+          HttpStatus.NOT_FOUND
+        );
       });
 
-      const { message, data } = controller.findOne(1);
-
-      expect(mockCharactersService.findOne).toHaveBeenCalledWith(1);
-      expect(message).toBe("Character not found");
-      expect(data).toBeNull();
+      try {
+        controller.findOne(1);
+      } catch (error) {
+        expect(error as HttpException).toBeInstanceOf(HttpException);
+        expect((error as HttpException).message).toBe(
+          "Character with id 1 not found"
+        );
+        expect((error as HttpException).getStatus()).toBe(HttpStatus.NOT_FOUND);
+        expect(mockCharactersService.findOne).toHaveBeenCalledWith(1);
+      }
     });
   });
 
@@ -77,9 +86,11 @@ describe("CharactersController", () => {
         name: "Test Character",
         job: JobType.Warrior,
       };
-      const { message, data } = controller.create(createCharacterDto);
-      expect(message).toBe("Character created successfully");
-      expect(data).toEqual({ ...createCharacterDto, id: 1 });
+      const result = controller.create(createCharacterDto);
+      expect(result).toStrictEqual({
+        ...createCharacterDto,
+        id: 1,
+      });
       expect(mockCharactersService.create).toHaveBeenCalledWith(
         createCharacterDto
       );
@@ -87,44 +98,72 @@ describe("CharactersController", () => {
 
     it("should throw an error if character name already exists", () => {
       mockCharactersService.create.mockImplementationOnce(() => {
-        throw new Error("Character name already exists");
+        throw new HttpException(
+          "Character name already exists",
+          HttpStatus.CONFLICT
+        );
       });
       const createCharacterDto = {
         name: "Test Character",
         job: JobType.Warrior,
       };
-      const { message, data } = controller.create(createCharacterDto);
-      expect(message).toBe("Character creation failed");
-      expect(data).toBeNull();
+      try {
+        controller.create(createCharacterDto);
+      } catch (error) {
+        expect(error as HttpException).toBeInstanceOf(HttpException);
+        expect((error as HttpException).message).toBe(
+          "Character name already exists"
+        );
+        expect((error as HttpException).getStatus()).toBe(HttpStatus.CONFLICT);
+      }
     });
 
     it("should throw an error if character name is invalid", () => {
       mockCharactersService.create.mockImplementationOnce(() => {
-        throw new Error("Character name already exists");
+        throw new HttpException(
+          "Invalid character creation request",
+          HttpStatus.BAD_REQUEST
+        );
       });
-
       const createCharacterDto = {
-        name: "1234",
+        name: "",
         job: JobType.Warrior,
       };
-
-      const { message, data } = controller.create(createCharacterDto);
-      expect(message).toBe("Character creation failed");
-      expect(data).toBeNull();
+      try {
+        controller.create(createCharacterDto);
+      } catch (error) {
+        expect(error as HttpException).toBeInstanceOf(HttpException);
+        expect((error as HttpException).message).toBe(
+          "Invalid character creation request"
+        );
+        expect((error as HttpException).getStatus()).toBe(
+          HttpStatus.BAD_REQUEST
+        );
+      }
     });
 
     it("should throw an error if job is invalid", () => {
       mockCharactersService.create.mockImplementationOnce(() => {
-        throw new Error();
+        throw new HttpException(
+          "Invalid character creation request",
+          HttpStatus.BAD_REQUEST
+        );
       });
       const createCharacterDto = {
         name: "Test Character",
         job: "invalid_job" as JobType,
       };
-
-      const { message, data } = controller.create(createCharacterDto);
-      expect(message).toBe("Character creation failed");
-      expect(data).toBeNull();
+      try {
+        controller.create(createCharacterDto);
+      } catch (error) {
+        expect(error as HttpException).toBeInstanceOf(HttpException);
+        expect((error as HttpException).message).toBe(
+          "Invalid character creation request"
+        );
+        expect((error as HttpException).getStatus()).toBe(
+          HttpStatus.BAD_REQUEST
+        );
+      }
     });
   });
 
@@ -137,10 +176,10 @@ describe("CharactersController", () => {
         ...character,
         name: "Updated Character",
         job: JobType.Thief,
+        level: 1,
       };
-      const { message, data } = controller.update(1, updateCharacterDto);
-      expect(message).toBe("Character updated successfully");
-      expect(data).toEqual({ ...updateCharacterDto });
+      const result = controller.update(1, updateCharacterDto);
+      expect(result).toEqual({ ...updateCharacterDto });
       expect(mockCharactersService.update).toHaveBeenCalledWith(
         1,
         updateCharacterDto
@@ -149,17 +188,31 @@ describe("CharactersController", () => {
 
     it("should throw an error if character not found", () => {
       mockCharactersService.update.mockImplementationOnce(() => {
-        throw new Error("Character not found");
+        throw new HttpException(
+          `Character with id 1 not found`,
+          HttpStatus.NOT_FOUND
+        );
       });
 
       const updateCharacterDto = {
         ...mockedCharacter,
         name: "Updated Character",
         job: JobType.Thief,
+        level: 1,
       };
-      const { message, data } = controller.update(1, updateCharacterDto);
-      expect(message).toBe("Character update failed");
-      expect(data).toBeNull();
+      try {
+        controller.update(1, updateCharacterDto);
+      } catch (error) {
+        expect(error as HttpException).toBeInstanceOf(HttpException);
+        expect((error as HttpException).message).toBe(
+          "Character with id 1 not found"
+        );
+        expect((error as HttpException).getStatus()).toBe(HttpStatus.NOT_FOUND);
+        expect(mockCharactersService.update).toHaveBeenCalledWith(
+          1,
+          updateCharacterDto
+        );
+      }
     });
   });
 });
