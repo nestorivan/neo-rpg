@@ -202,9 +202,14 @@ export class Battle {
     const hpPointsAfterDamage = defenderHp - damage;
 
     if (hpPointsAfterDamage <= 0) {
-      defender.currentHp = 0;
+      this.writeBattleLog(
+        `${attacker.name} attacks ${defender.name} for ${damage}, ${defender.name} has 0 HP remaining.`
+      );
+
       this.setBattleLoser(defender);
       this.setBattleWinner(attacker);
+
+      defender.currentHp = 0;
       return;
     }
 
