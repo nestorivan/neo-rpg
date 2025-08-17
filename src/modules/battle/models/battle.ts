@@ -38,7 +38,7 @@ export class Battle {
     this.battleLog.push(battleLog);
   }
 
-  initializeBattle() {
+  private initializeBattle() {
     try {
       if (!this.checkIfCharactersIsAlive(this.opponent1)) {
         throw new Error(`Character ${this.opponent1.name} is dead`);
