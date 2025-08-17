@@ -1,27 +1,44 @@
 import { CharacterDetails } from "@src/modules/characters/dto/createCharacter.dto";
 import { v4 as uuid } from "uuid";
 
-export class Battle {
+export type SimpleCharacterDetails = Pick<CharacterDetails, "id" | "name">;
+export interface BattleResults {
   battleId: string;
+  winner: SimpleCharacterDetails;
+  loser: SimpleCharacterDetails;
+  logs: string[];
+}
+
+export class Battle {
+  private battleId: string;
   private opponent1: CharacterDetails;
   private opponent2: CharacterDetails;
   private battleLog: string[] = [];
+  private winner: SimpleCharacterDetails;
+  private loser: SimpleCharacterDetails;
 
   constructor(opponent1: CharacterDetails, opponent2: CharacterDetails) {
     this.battleId = uuid();
     this.opponent1 = opponent1;
     this.opponent2 = opponent2;
+
+    this.initializeBattle();
   }
 
-  get battleLogs() {
-    return this.battleLog;
+  get battleResults(): BattleResults {
+    return {
+      battleId: this.battleId,
+      winner: this.winner,
+      loser: this.loser,
+      logs: this.battleLog,
+    };
   }
 
   private writeBattleLog(battleLog: string) {
     this.battleLog.push(battleLog);
   }
 
-  initializeBattle() {
+  private initializeBattle() {
     try {
       if (!this.checkIfCharactersIsAlive(this.opponent1)) {
         throw new Error(`Character ${this.opponent1.name} is dead`);
@@ -186,7 +203,7 @@ export class Battle {
 
     if (hpPointsAfterDamage <= 0) {
       defender.currentHp = 0;
-      this.setCharacterAsDead(defender);
+      this.setBattleLoser(defender);
       this.setBattleWinner(attacker);
       return;
     }
@@ -201,7 +218,19 @@ export class Battle {
     character.alive = false;
   }
 
+  private setBattleLoser(character: CharacterDetails) {
+    this.loser = {
+      id: character.id,
+      name: character.name,
+    };
+    this.setCharacterAsDead(character);
+  }
+
   private setBattleWinner(character: CharacterDetails) {
+    this.winner = {
+      id: character.id,
+      name: character.name,
+    };
     this.writeBattleLog(
       `${character.name} wins the battle! ${character.name} still has ${character.currentHp} HP remaining!`
     );

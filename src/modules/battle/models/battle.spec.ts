@@ -76,14 +76,13 @@ describe("Battle", () => {
   });
   it("should run a fight between two characters", () => {
     const battle = new Battle(opponent1, opponent2);
-    battle.initializeBattle();
-    expect(battle.battleId).not.toBeNull();
-    expect(battle.battleLogs).toBeInstanceOf(Array);
+    const battleResults = battle.battleResults;
+    expect(battleResults.battleId).not.toBeNull();
+    expect(battleResults.logs).toBeInstanceOf(Array);
   });
 
   it("should end the battle if one of the characters is dead", () => {
-    const battle = new Battle(opponent1, opponent2);
-    battle.initializeBattle();
+    new Battle(opponent1, opponent2);
 
     const isAnyCharacterDead = !opponent1.alive || !opponent2.alive;
     expect(isAnyCharacterDead).toBe(true);
@@ -91,9 +90,9 @@ describe("Battle", () => {
 
   it("logs should container the battle winner", () => {
     const battle = new Battle(opponent1, opponent2);
-    battle.initializeBattle();
+    const battleResults = battle.battleResults;
 
-    const hasWinner = battle.battleLogs.some((log) =>
+    const hasWinner = battleResults.logs.some((log) =>
       log.toLowerCase().includes("wins the battle!")
     );
 
@@ -102,9 +101,9 @@ describe("Battle", () => {
 
   it("should include at least one round of battle", () => {
     const battle = new Battle(opponent1, opponent2);
-    battle.initializeBattle();
+    const battleResults = battle.battleResults;
 
-    const hasRounds = battle.battleLogs.some((log) =>
+    const hasRounds = battleResults.logs.some((log) =>
       log.toLowerCase().includes("will begin this round.")
     );
 
@@ -112,8 +111,7 @@ describe("Battle", () => {
   });
 
   it("defeated character should have 0 hp remaining", () => {
-    const battle = new Battle(opponent1, opponent2);
-    battle.initializeBattle();
+    new Battle(opponent1, opponent2);
 
     const defeatedPlayer = !opponent1.alive ? opponent1 : opponent2;
 
@@ -121,8 +119,7 @@ describe("Battle", () => {
   });
 
   it("alive character should have hp remaining", () => {
-    const battle = new Battle(opponent1, opponent2);
-    battle.initializeBattle();
+    new Battle(opponent1, opponent2);
 
     const alivePlayer = opponent1.alive ? opponent1 : opponent2;
 

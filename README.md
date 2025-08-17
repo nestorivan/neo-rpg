@@ -55,11 +55,11 @@ This project is built using the following technologies:
 - Docker
 - Zod for schema validations
 
-## Compromises
+## Future improvements
 
-There were some compromises made in this project because of time constraints:
+This project was built with a focus on core functionality first. There are several enhancements that can be added in the future to make it more robust and production-ready:
 
-- There is no database, all data is stored in memory
-- There is no authentication
-- Logging could be improved
-- Error messages could be improved
+
+- Add a database for persistent data storage
+- Implement authentication and authorization
+- Enhance logging for better observability
